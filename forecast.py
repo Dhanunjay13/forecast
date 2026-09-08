@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 import joblib
@@ -53,6 +54,7 @@ st.markdown(
 
 
     /* Additional subtle dark overlay */
+
     .stApp::before {
         content: "";
         position: fixed;
@@ -144,6 +146,51 @@ st.markdown(
         color: #ffffff !important;
 
         font-weight: 800 !important;
+    }
+
+
+    /* ========================================================
+       SIDEBAR EXPANDERS
+       ======================================================== */
+
+    section[data-testid="stSidebar"]
+    .streamlit-expanderHeader {
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(11, 39, 70, 0.96),
+                rgba(7, 27, 51, 0.96)
+            );
+
+        border:
+            1px solid rgba(105, 187, 245, 0.20);
+
+        border-radius: 12px;
+
+        color: #f2f8ff !important;
+
+        font-weight: 750;
+
+        padding: 0.75rem 0.9rem;
+    }
+
+
+    section[data-testid="stSidebar"]
+    .streamlit-expanderContent {
+
+        background:
+            rgba(5, 22, 42, 0.96);
+
+        border:
+            1px solid rgba(100, 180, 240, 0.12);
+
+        border-top: none;
+
+        border-radius:
+            0 0 12px 12px;
+
+        color: #d8e9f8 !important;
     }
 
 
@@ -573,7 +620,6 @@ st.markdown(
         .block-container {
 
             padding-left: 1rem;
-
             padding-right: 1rem;
         }
 
@@ -593,7 +639,6 @@ st.markdown(
         div[data-testid="stMetric"] {
 
             min-height: 105px;
-
             padding: 15px;
         }
 
@@ -664,7 +709,9 @@ def load_metadata():
 
 
     # Convert holiday values into date objects
+
     cleaned_holidays = set()
+
 
     for date_value in holiday_dates:
 
@@ -699,7 +746,9 @@ def load_data():
         )
 
 
-    df = pd.read_excel(data_path)
+    df = pd.read_excel(
+        data_path
+    )
 
 
     # --------------------------------------------------------
@@ -711,6 +760,7 @@ def load_data():
         possible_date_columns = [
 
             col
+
             for col in df.columns
 
             if "date" in str(col).lower()
@@ -743,6 +793,7 @@ def load_data():
         possible_target_columns = [
 
             col
+
             for col in df.columns
 
             if "pjmw" in str(col).lower()
@@ -954,6 +1005,7 @@ def generate_forecast(
         missing_columns = [
 
             col
+
             for col in feature_columns
 
             if col not in x_future.columns
@@ -983,6 +1035,7 @@ def generate_forecast(
 
 
         # Demand cannot be negative
+
         prediction = max(
             0.0,
             prediction
@@ -1035,7 +1088,9 @@ def generate_forecast(
         )
 
 
-    return pd.DataFrame(predictions)
+    return pd.DataFrame(
+        predictions
+    )
 
 
 # ============================================================
@@ -1078,13 +1133,12 @@ st.sidebar.caption(
     "PJM Demand Forecasting System"
 )
 
-
 st.sidebar.divider()
 
 
-# ------------------------------------------------------------
-# Forecast Settings
-# ------------------------------------------------------------
+# ============================================================
+# FORECAST SETTINGS
+# ============================================================
 
 st.sidebar.subheader(
     "Forecast Settings"
@@ -1114,42 +1168,125 @@ st.sidebar.write(
 st.sidebar.divider()
 
 
-# ------------------------------------------------------------
-# Model Information
-# ------------------------------------------------------------
+# ============================================================
+# MODEL INFORMATION
+# ============================================================
 
-st.sidebar.subheader(
-    "Model"
-)
+with st.sidebar.expander(
+    "🤖 Model Information",
+    expanded=False
+):
+
+    st.write(
+        "**Model:** XGBoost Regressor"
+    )
+
+    st.write(
+        "**Target Variable:** PJMW_MW"
+    )
+
+    st.write(
+        "**Forecast Frequency:** Hourly"
+    )
+
+    st.write(
+        "**Forecast Type:** "
+        "Recursive Multi-Step Forecasting"
+    )
+
+    st.write(
+        "**Maximum Forecast Horizon:** "
+        "30 Days"
+    )
+
+    st.write(
+        "**Features:** Hour, Day, DayOfWeek, "
+        "Month, Year, IsWeekend, IsHoliday, "
+        "lag variables and rolling statistics."
+    )
+
+    st.write(
+        "**Forecast Method:** Each predicted "
+        "value is added back to the historical "
+        "sequence and used to generate the next "
+        "prediction."
+    )
 
 
-st.sidebar.write(
-    "**Algorithm:** XGBoost Regressor"
-)
+# ============================================================
+# DATASET INFORMATION
+# ============================================================
 
-st.sidebar.write(
-    "**Frequency:** Hourly"
-)
+with st.sidebar.expander(
+    "📊 Dataset Information",
+    expanded=False
+):
 
-st.sidebar.write(
-    "**Target:** PJMW_MW"
-)
+    st.metric(
+        "Observations",
+        f"{len(df):,}"
+    )
 
-st.sidebar.write(
-    "**Maximum Horizon:** 30 Days"
-)
+    st.metric(
+        "Data Start",
+        df[
+            "Datetime"
+        ].min().strftime(
+            "%d %b %Y"
+        )
+    )
 
+    st.metric(
+        "Data End",
+        df[
+            "Datetime"
+        ].max().strftime(
+            "%d %b %Y"
+        )
+    )
+
+    st.metric(
+        "Features",
+        f"{len(feature_columns)}"
+    )
+
+
+# ============================================================
+# MODEL DETAILS
+# ============================================================
+
+with st.sidebar.expander(
+    "⚙️ Model Details",
+    expanded=False
+):
+
+    st.write(
+        "**Algorithm:** XGBoost Regressor"
+    )
+
+    st.write(
+        "**Frequency:** Hourly"
+    )
+
+    st.write(
+        "**Target:** PJMW_MW"
+    )
+
+    st.write(
+        "**Maximum Horizon:** 30 Days"
+    )
+
+
+# ============================================================
+# DATA STATUS
+# ============================================================
 
 st.sidebar.divider()
-
-
-# ------------------------------------------------------------
-# Data Status
-# ------------------------------------------------------------
 
 st.sidebar.subheader(
     "Data Status"
 )
+
 
 st.sidebar.success(
     "Dataset loaded successfully"
@@ -1217,9 +1354,9 @@ latest_timestamp = (
 )
 
 
-# ------------------------------------------------------------
-# Metrics
-# ------------------------------------------------------------
+# ============================================================
+# METRICS
+# ============================================================
 
 m1, m2, m3, m4 = st.columns(4)
 
@@ -1354,6 +1491,7 @@ if generate_forecast_button:
 
 
             # Store forecast
+
             st.session_state[
                 "forecast_df"
             ] = forecast_df
@@ -1379,7 +1517,9 @@ if generate_forecast_button:
 if "forecast_df" in st.session_state:
 
     forecast_df = (
-        st.session_state["forecast_df"]
+        st.session_state[
+            "forecast_df"
+        ]
     )
 
 
@@ -1437,9 +1577,9 @@ if "forecast_df" in st.session_state:
     )
 
 
-    # --------------------------------------------------------
-    # Forecast metrics
-    # --------------------------------------------------------
+    # ========================================================
+    # FORECAST METRICS
+    # ========================================================
 
     f1, f2, f3, f4 = st.columns(4)
 
@@ -1535,7 +1675,9 @@ if "forecast_df" in st.session_state:
 
     display_df["Datetime"] = (
 
-        display_df["Datetime"]
+        display_df[
+            "Datetime"
+        ]
 
         .dt.strftime(
             "%d-%b-%Y %H:%M"
@@ -1596,125 +1738,6 @@ if "forecast_df" in st.session_state:
 
 
 # ============================================================
-# PROJECT INFORMATION
-# ============================================================
-
-st.header(
-    "Project Information"
-)
-
-
-# ------------------------------------------------------------
-# Model Information
-# ------------------------------------------------------------
-
-with st.expander(
-    "🤖 Model Information",
-    expanded=True
-):
-
-    st.write(
-        "**Model:** XGBoost Regressor"
-    )
-
-    st.write(
-        "**Target Variable:** PJMW_MW"
-    )
-
-    st.write(
-        "**Forecast Frequency:** Hourly"
-    )
-
-    st.write(
-        "**Forecast Type:** Recursive Multi-Step Forecasting"
-    )
-
-    st.write(
-        "**Maximum Forecast Horizon:** 30 Days"
-    )
-
-    st.write(
-
-        "**Features:** Hour, Day, DayOfWeek, "
-        "Month, Year, IsWeekend, IsHoliday, "
-        "lag variables and rolling statistics."
-
-    )
-
-    st.write(
-
-        "**Forecast Method:** Each predicted value "
-        "is added back to the historical sequence "
-        "and used to generate the next prediction."
-
-    )
-
-
-# ------------------------------------------------------------
-# Dataset Information
-# ------------------------------------------------------------
-
-with st.expander(
-    "📊 Dataset Information",
-    expanded=True
-):
-
-    d1, d2, d3, d4 = st.columns(4)
-
-
-    with d1:
-
-        st.metric(
-
-            "Observations",
-
-            f"{len(df):,}"
-
-        )
-
-
-    with d2:
-
-        st.metric(
-
-            "Data Start",
-
-            df[
-                "Datetime"
-            ].min().strftime(
-                "%d %b %Y"
-            )
-
-        )
-
-
-    with d3:
-
-        st.metric(
-
-            "Data End",
-
-            df[
-                "Datetime"
-            ].max().strftime(
-                "%d %b %Y"
-            )
-
-        )
-
-
-    with d4:
-
-        st.metric(
-
-            "Features",
-
-            f"{len(feature_columns)}"
-
-        )
-
-
-# ============================================================
 # FOOTER
 # ============================================================
 
@@ -1732,3 +1755,4 @@ st.markdown(
 
     unsafe_allow_html=True
 )
+```
