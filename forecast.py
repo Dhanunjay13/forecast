@@ -53,7 +53,9 @@ st.markdown(
     }
 
 
-    /* Additional subtle dark overlay */
+    /* ========================================================
+       ADDITIONAL SUBTLE DARK OVERLAY
+       ======================================================== */
 
     .stApp::before {
         content: "";
@@ -421,21 +423,27 @@ st.markdown(
 
 
     /* ========================================================
-       SIDEBAR SLIDER
+       SIDEBAR NUMBER INPUT
        ======================================================== */
 
-    div[data-baseweb="slider"] {
+    section[data-testid="stSidebar"]
+    div[data-baseweb="input"] > div {
 
-        margin-bottom: 1rem;
+        background:
+            rgba(10, 36, 65, 0.92) !important;
+
+        border:
+            1px solid rgba(110, 190, 245, 0.25) !important;
+
+        border-radius: 11px;
+
+        color: #ffffff !important;
     }
 
 
-    section[data-testid="stSidebar"]
-    [data-testid="stWidgetLabel"] {
+    section[data-testid="stSidebar"] input {
 
-        color: #cfe5fa !important;
-
-        font-weight: 700 !important;
+        color: #ffffff !important;
     }
 
 
@@ -990,7 +998,7 @@ def generate_forecast(
     # Generate hourly predictions
     # --------------------------------------------------------
 
-    for _ in range(days * 24):
+    for _ in range(int(days) * 24):
 
         x_future, timestamp = create_features(
             history,
@@ -1127,7 +1135,9 @@ except Exception as error:
 # SIDEBAR
 # ============================================================
 
-st.sidebar.title("⚡ Energy AI")
+st.sidebar.title(
+    "⚡ Energy AI"
+)
 
 st.sidebar.caption(
     "PJM Demand Forecasting System"
@@ -1145,13 +1155,11 @@ st.sidebar.subheader(
 )
 
 
-forecast_days = st.sidebar.slider(
+forecast_days = st.sidebar.number_input(
 
     "Forecast Horizon (Days)",
 
     min_value=1,
-
-    max_value=30,
 
     value=30,
 
@@ -1161,7 +1169,7 @@ forecast_days = st.sidebar.slider(
 
 st.sidebar.write(
     f"**Hourly predictions:** "
-    f"{forecast_days * 24:,}"
+    f"{int(forecast_days) * 24:,}"
 )
 
 
@@ -1196,7 +1204,7 @@ with st.sidebar.expander(
 
     st.write(
         "**Maximum Forecast Horizon:** "
-        "30 Days"
+        "No fixed limit"
     )
 
     st.write(
@@ -1273,7 +1281,11 @@ with st.sidebar.expander(
     )
 
     st.write(
-        "**Maximum Horizon:** 30 Days"
+        "**Forecast Type:** Recursive"
+    )
+
+    st.write(
+        "**Forecast Horizon:** User Defined"
     )
 
 
@@ -1437,11 +1449,11 @@ st.markdown(
     f"""
     <p class="intro-text">
         Generate <strong style="color:#ffffff;">
-        {forecast_days * 24:,} hourly predictions
+        {int(forecast_days) * 24:,} hourly predictions
         </strong>
         for the next
         <strong style="color:#ffffff;">
-        {forecast_days} day(s)
+        {int(forecast_days):,} day(s)
         </strong>.
     </p>
     """,
@@ -1468,7 +1480,7 @@ if generate_forecast_button:
 
     with st.spinner(
 
-        f"Generating {forecast_days}-day "
+        f"Generating {int(forecast_days):,}-day "
         f"hourly forecast..."
 
     ):
@@ -1479,7 +1491,7 @@ if generate_forecast_button:
 
                 df,
 
-                forecast_days,
+                int(forecast_days),
 
                 model,
 
@@ -1726,7 +1738,7 @@ if "forecast_df" in st.session_state:
         data=csv_data,
 
         file_name=(
-            f"pjm_{forecast_days}"
+            f"pjm_{int(forecast_days)}"
             f"_day_forecast.csv"
         ),
 
